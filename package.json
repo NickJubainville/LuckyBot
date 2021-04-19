@@ -1,0 +1,22 @@
+{
+  "name": "luckybot",
+  "version": "1.0.0",
+  "description": "IdleOn Lucky Server Bot",
+  "main": "index.js",
+  "dependencies": {
+    "discord.js": "^12.5.1",
+    "google-spreadsheet": "^3.1.15",
+    "googleapis": "^39.2.0"
+  },
+  "devDependencies": {
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.22.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.22.1"
+  },
+  "scripts": {
+    "test": "~help"
+  },
+  "author": "NJubainville",
+  "license": "ISC"
+}
