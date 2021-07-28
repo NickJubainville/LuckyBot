@@ -1,6 +1,8 @@
 # Files
 credentials.json
 config.json
+luckyconfig/
+backup/
 
 # Logs
 logs

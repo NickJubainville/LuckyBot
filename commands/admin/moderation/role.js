@@ -2,7 +2,6 @@ module.exports = {
 	name: 'role',
 	description: 'Add a role to a user.',
 	aliases: ['r'],
-	permissions: 'MANAGE_ROLES',
 	execute(message, args) {
 		if (!args.length) {
 			return message.channel.send(`I need to know the user & desired role, ${message.author}.`);
@@ -20,12 +19,14 @@ module.exports = {
 					case 'm':
 					case 'member': {
 						const guildRole = message.guild.roles.cache.find(r => r.name === 'Member');
+						const removeRole = message.guild.roles.cache.find(r => r.name === 'Applicant');
 						const member = message.mentions.members.first();
 						member.roles.add(guildRole);
-						return message.channel.send(`Welcome to Lucky ${member}! 
-						• Our weekly GP requirement is **150**. 						
-						• If you'd like to hang out with other members, visit <:dice:818655068756115456>Dice 7. 
-						• You can find a plethora of useful information in the Resources channel group as well as sign up for boss pings in <#825523888233512970>`);
+						member.roles.remove(removeRole);
+						return message.channel.send(`Welcome to Lucky ${member}! \n• Our weekly GP requirement is **250** \
+						\n• If you'd like to hang out with other members, set <:dice:818655068756115456>Dice 7 as your favourite world \
+						\n• Type ~help to get a list of our server's bot commands and visit <#825523888233512970> for additional roles \
+						\n<:STAR:814075576414896148> You get 10GP from logging in daily but can double it to 20 with a bribe purchased from the stamp pig`);
 					}
 					case 'v':
 					case 'visitor': {

@@ -1,11 +1,29 @@
 const fs = require('fs');
 const Discord = require('discord.js');
 const { prefix, token } = require('./config.json');
-const { connect, getData } = require('./spreadsheet');
+const { connect, getData, setData, sheetsid, ranges } = require('./spreadsheet');
 
 const client = new Discord.Client();
 const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
 
+const leaders = [
+    // Nymiir
+    '89918398351290368',
+    // ClassicSteel
+    '90594734891859968',
+    // Mateo
+    '94897361578360832',
+    // Phos
+    '697177576535228456',
+    // Hector
+    '333983557024481281',
+    // CantTouched
+    '155357743249620992',
+];
+
+let eventFlag = false;
+
+// Trigger an event file depending on the type of event occuring
 for (const file of eventFiles) {
 	const event = require(`./events/${file}`);
 	if (event.once) {
@@ -19,9 +37,12 @@ for (const file of eventFiles) {
 client.cooldowns = new Discord.Collection();
 client.commands = new Discord.Collection();
 client.hiddenCommands = new Discord.Collection();
+
+// Separate file structure to ensure regular users aren't shown admin commands in help function
 const commandFolders = fs.readdirSync('./commands/basic');
 const adminCommands = fs.readdirSync('./commands/admin');
 
+// Look through the command folder for all js files to know which commands exist
 for (const folder of commandFolders) {
 	const commandFiles = fs.readdirSync(`./commands/basic/${folder}`).filter(file => file.endsWith('.js'));
 	for (const file of commandFiles) {
@@ -30,6 +51,7 @@ for (const folder of commandFolders) {
 	}
 }
 
+// Do the same for admin commands
 for (const folder of adminCommands) {
 	const adminFiles = fs.readdirSync(`./commands/admin/${folder}`).filter(file => file.endsWith('.js'));
 	for (const file of adminFiles) {
@@ -38,132 +60,101 @@ for (const folder of adminCommands) {
 	}
 }
 
+// Event handler for messages
 client.on('message', async (message) => {
+
+    if (message.author.id == '89918398351290368') {
+        if(message.content.includes("Flash Time!") || message.content.includes("Initiate Protocol 7b2")) {
+            const amountOfTime = 5 + Math.floor(Math.random() * (30 - 5 + 1));
+            message.channel.send(`𝙀𝙭𝙚𝙘𝙪𝙩𝙞𝙣𝙜 𝙃𝙮𝙥𝙚𝙧 𝙎𝙝𝙞𝙛𝙩`);
+            message.channel.send(`𝘼𝙗𝙡𝙚 𝙩𝙤 𝙨𝙪𝙨𝙩𝙖𝙞𝙣 𝙛𝙤𝙧 [${amountOfTime}] 𝙢𝙞𝙣𝙪𝙩𝙚𝙨`);
+
+            const auth = await connect();
+
+            let values = [[
+                60,
+            ]];
+
+            let resource = {
+                values,
+            };
+
+            let setOptions = {
+                    spreadsheetId: sheetsid,
+                    range: ranges.eventCooldown,
+                    valueInputOption: "USER_ENTERED",
+                    resource,
+            };
+
+            const response1 = await setData(auth, setOptions);
+
+            if(response1) {
+                console.log('cooldown set to 60 seconds');
+                eventFlag = true;
+            }
+
+            setTimeout(async function() {
+
+                values = [[
+                    1800,
+                ]];
+
+                resource = {
+                    values,
+                };
+                setOptions = {
+                    spreadsheetId: sheetsid,
+                    range: ranges.eventCooldown,
+                    valueInputOption: "USER_ENTERED",
+                    resource,
+                };
+
+                const response2 = await setData(auth, setOptions);
+
+                if(response2) {
+                    console.log('cooldown set to 1800 seconds');
+                    message.channel.send(`sʏsᴛᴇᴍs ᴄʀɪᴛɪᴄᴀʟ: ᴄᴇᴀsɪɴɢ ʜʏᴘᴇʀ sʜɪғᴛ`);
+                    eventFlag = false;
+                }
+            }, amountOfTime * 60 * 1000);
+        }
+    }
+
     if (!message.content.startsWith(prefix) || message.author.bot) return;
 
     const args = message.content.slice(prefix.length).trim().split(/ +/);
     const commandName = args.shift().toLowerCase();
     let command = client.commands.get(commandName) || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
-    const auth = await connect();
 
-    if(commandName === 'gp' || command === 'guildpoints') {
-        if (!args.length) {
-            return message.channel.send(`Please specify the member you want to lookup.`);
-        }
+    // else if (commandName === 'gems' || commandName === 'gem') {
+    //     if (message.channel.id === '843483374009188392') {
+    //         message.channel.send(`You found the easter egg, ${message.author}! Hit up <@!89918398351290368> for a $10 Google Play card <:pigchamp:819862646437838858>`);
+    //         message.channel.updateOverwrite('814044645486231562', {
+    //             SEND_MESSAGES: false,
+    //         })
+    //             .then(channel => console.log(channel.permissionOverwrites.get('814044645486231562')))
+    //             .catch(console.error);
+    //         return;
+    //     }
+    // }
 
-        const initialUsername = args.toString();
-        const username = initialUsername.replace(",", " ").toLowerCase();
-
-        const options = {
-        spreadsheetId: '12H32mk28mfFVkxeWA4cipXqGHCx8uU_YTXHRRb6wCSM',
-        range: 'DATA!A5:P145',
-        };
-        const { values } = await getData(auth, options);
-        let found = -1;
-        const flag = values.pop().toString();
-
-        for (let i = 0; i < values.length; i++) {
-            const item = values[i];
-            const itemLower = item.toString().toLowerCase();
-                if (itemLower.includes(username)) {
-                found = i;
-            }
-        }
-        if (found > -1) {
-            const stat = values[found];
-            const memberName = stat[2];
-            const weeklyGP = stat[14];
-            const ranking = stat[15];
-            console.log(`${memberName} has earned ${weeklyGP} GP this week.`);
-            switch (flag) {
-                case "Mid":
-                    if (weeklyGP >= 150) {
-                        if (ranking == 1) {
-                            return message.channel.send(`<:STAR:814075576414896148> ${memberName} has earned ${weeklyGP} GP and is currently the highest rank at midweek! <:STAR:814075576414896148>`);
-                        }
-                        else if (ranking == 69) {
-                            return message.channel.send(`${memberName} has earned ${weeklyGP} GP and is currently ranked #${ranking} midweek! <:heh:829135032106352650>`);
-                        }
-                        else if (ranking <= 10) {
-                            return message.channel.send(`${memberName} has earned ${weeklyGP} GP and is currently ranked #${ranking} midweek! <:pigchamp:819862646437838858>`);
-                        }
-                        else {
-                            return message.channel.send(`${memberName} has earned ${weeklyGP} GP and is currently ranked #${ranking} midweek! <:happy:814038639138308147>`);
-                        }
-                    }
-                    else if (weeklyGP < 150 && weeklyGP > 0) {
-                        return message.channel.send(`${memberName} has earned ${weeklyGP} GP. Only ${150 - weeklyGP} GP left to earn before Tuesday! Currently #${ranking}.`);
-                    }
-                    else {
-                        return message.channel.send(`${memberName} hasn't earned any GP yet. Reach 150 before Tuesday to hit our target!`);
-                    }
-                case "End":
-                    if (weeklyGP >= 150) {
-                        if (ranking == 1) {
-                            return message.channel.send(`<:STAR:814075576414896148> ${memberName} has earned ${weeklyGP} GP and is our highest ranked this week! <:STAR:814075576414896148>`);
-                        }
-                        else if (ranking == 69) {
-                            return message.channel.send(`${memberName} has earned ${weeklyGP} GP and is currently ranked #${ranking} this week! <:heh:829135032106352650>`);
-                        }
-                        else if (ranking <= 10) {
-                            return message.channel.send(`${memberName} has earned ${weeklyGP} GP and is currently ranked #${ranking} this week! <:pigchamp:819862646437838858>`);
-                        }
-                        else {
-                            return message.channel.send(`${memberName} has earned ${weeklyGP} GP and is currently ranked #${ranking} this week! <:happy:814038639138308147>`);
-                        }
-                    }
-                    else if (weeklyGP < 150 && weeklyGP > 0) {
-                        return message.channel.send(`${memberName} has earned ${weeklyGP} GP putting them ${150 - weeklyGP} below the weekly target <:uganda:814038639204892682>; currently ranked #${ranking}.`);
-                    }
-                    else {
-                        return message.channel.send(`${memberName} hasn't earned any GP this week <:wtf:814038639260205076>`);
-                    }
-                default:
-                    console.log("Please check update flag");
-            }
-        }
-        else {
-            return message.channel.send('I couldn\'t find that member <:uganda:814038639204892682>');
-        }
+    if (commandName === 'soup') {
+        message.channel.send(`Why do you keep trying to use this? You already know it won't do anything`);
+        message.channel.send(`https://i.imgur.com/b9doIeO.png`);
+        return;
     }
-    else if (commandName === 'status') {
-        const options = {
-            spreadsheetId: '12H32mk28mfFVkxeWA4cipXqGHCx8uU_YTXHRRb6wCSM',
-            range: 'DATA!A5:A143',
-            };
 
-        const { values } = await getData(auth, options);
-        let found = 0;
-
-        for (let i = 0; i < values.length; i++) {
-            const item = values[i];
-            const itemLower = item.toString();
-                if (itemLower.includes("*")) {
-                found++;
-            }
-        }
-
-        switch (found) {
-            case 0:
-                return message.channel.send(`Lucky is currently **full**. If you'd like to be notified when we have available slots, please claim the applicant role in <#814036308992458802> if you haven't already done so.`);
-                
-            case 1:
-                return message.channel.send(`Lucky has ${found} open slot. <@&814044385519075378> if you're still interested in joining please let Nymiir know.`);
-
-            default:
-                return message.channel.send(`Lucky has ${found} open slots. <@&814044385519075378> if you're still interested in joining please let Nymiir know.`);
-        }
-
-    }
     else {
-        if (message.author.id == '89918398351290368') {
-            command = client.hiddenCommands.get(commandName) 
+
+        // If I or another leader sent the message, make admin commands accessible
+        if (leaders.includes(message.author.id)) {
+            command = client.hiddenCommands.get(commandName)
             || client.commands.get(commandName)
-            || client.hiddenCommands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName)) 
+            || client.hiddenCommands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName))
             || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
         }
-    
-        if (!command) return;    
+
+        if (!command) return;
 
         if (command.guildOnly && message.channel.type === 'dm') {
             return message.reply('I can\'t execute that command inside DMs.');
@@ -188,28 +179,75 @@ client.on('message', async (message) => {
 
             const { cooldowns } = client;
 
-            if (!cooldowns.has(command.name)) {
-                cooldowns.set(command.name, new Discord.Collection());
+            let commandNameOverride = command.name;
+
+            if(!eventFlag) {
+                if(commandName === 'level' || commandName === 'roll' || commandName === 'sabotage' || commandName === 'cooldown' || commandName === 'heatup') {
+                    commandNameOverride = 'rollEvent';
+                }
+            }
+
+            if (!cooldowns.has(commandNameOverride)) {
+                cooldowns.set(commandNameOverride, new Discord.Collection());
             }
 
             const now = Date.now();
-            const timestamps = cooldowns.get(command.name);
-            const cooldownAmount = (command.cooldown || 3) * 1000;
+            const timestamps = cooldowns.get(commandNameOverride);
+            let cooldownAmount = (command.cooldown || 3) * 1000;
+
+            if(commandName === 'level' || commandName === 'roll' || commandName === 'sabotage' || commandName === 'cooldown' || commandName === 'heatup') {
+
+                const auth = await connect();
+
+                const getOptions = {
+                    spreadsheetId: sheetsid,
+                    range: ranges.eventValues,
+                };
+
+                const { values } = await getData(auth, getOptions);
+
+                const dynamicCooldown = values[0][1];
+
+                if(commandName === 'level' && values[0][0] <= 1000) {
+                    message.channel.send(`Roll has already reached max level!`);
+                    return;
+                }
+                else if(commandName === 'heatup' && values[0][1] >= 1800) {
+                    message.channel.send(`What, is 30minutes not long enough for you?`);
+                    return;
+                }
+                else if(commandName === 'cooldown' && values[0][1] <= 600) {
+                    message.channel.send(`If you're hoping for this to drop below 10minutes you're going to have to convince Nymiir`);
+                    return;
+                }
+                else {
+                    cooldownAmount = dynamicCooldown * 1000;
+                }
+            }
 
             if (timestamps.has(message.author.id)) {
                 const expirationTime = timestamps.get(message.author.id) + cooldownAmount;
 
                 if (now < expirationTime) {
-                    const timeLeft = (expirationTime - now) / 1000;
-                    return message.reply(`Please wait ${timeLeft.toFixed(1)} more second(s) before reusing the \`${command.name}\` command.`);
+                    let timeLeft = (expirationTime - now) / 1000;
+
+                    if(timeLeft > 60) {
+                        timeLeft = timeLeft / 60;
+                        return message.reply(`Please wait ${timeLeft.toFixed(0)} more minute(s) before reusing the \`${command.name}\` command.`);
+                    }
+                    else {
+                        return message.reply(`Please wait ${timeLeft.toFixed(1)} more second(s) before reusing the \`${command.name}\` command.`);
+                    }
                 }
             }
 
             timestamps.set(message.author.id, now);
             setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
 
+            const timeoutAmount = 30;
+
         try {
-            command.execute(message, args);
+            command.execute(message, args, timeoutAmount);
         }
         catch (error) {
             console.error(error);

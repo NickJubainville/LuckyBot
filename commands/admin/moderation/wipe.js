@@ -1,7 +1,6 @@
 module.exports = {
 	name: 'wipe',
 	description: 'Wipe away up to 99 messages.',
-	permissions: 'MANAGE_MESSAGES',
 	execute(message, args) {
 		const amount = parseInt(args[0]) + 1;
 
