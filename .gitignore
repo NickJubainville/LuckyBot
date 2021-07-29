@@ -3,6 +3,7 @@ credentials.json
 config.json
 luckyconfig/
 backup/
+.vscode/
 
 # Logs
 logs
