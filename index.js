@@ -1,10 +1,15 @@
 const fs = require('fs');
 const Discord = require('discord.js');
+const DisTube = require('distube');
+const client = new Discord.Client();
+
 const { prefix, token } = require('./config.json');
 const { connect, getData, setData, sheetsid, ranges } = require('./spreadsheet');
 
-const client = new Discord.Client();
 const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
+
+client.distube = new DisTube(client, { searchSongs: false, emitNewSongOnly: true });
+
 
 const leaders = [
     // Nymiir
@@ -247,7 +252,7 @@ client.on('message', async (message) => {
             const timeoutAmount = 30;
 
         try {
-            command.execute(message, args, timeoutAmount);
+            command.execute(message, args, client, timeoutAmount);
         }
         catch (error) {
             console.error(error);

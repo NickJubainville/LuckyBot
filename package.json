@@ -4,10 +4,13 @@
   "description": "IdleOn Lucky Server Bot",
   "main": "index.js",
   "dependencies": {
+    "@discordjs/opus": "^0.6.0",
     "discord.js": "^12.5.1",
+    "distube": "^2.8.18",
+    "ffmpeg-static": "^4.4.0",
     "google-spreadsheet": "^3.1.15",
-    "googleapis": "^39.2.0",
-    "nodemon": "^2.0.12"
+    "nodemon": "^2.0.12",
+    "pm2": "^5.1.1"
   },
   "devDependencies": {
     "babel-eslint": "^10.1.0",

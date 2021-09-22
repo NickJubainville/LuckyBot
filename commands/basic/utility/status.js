@@ -28,7 +28,7 @@ module.exports = {
         // If any *'s are found in the spreadsheet in the A column, it marks an available spot. Therefore, send a message based on number of openings
         switch (found) {
             case 0:
-                return message.channel.send(`Lucky is currently **full**. If you'd like to be notified when we have available slots, please claim the applicant role in <#814036308992458802> if you haven't already done so.`);
+                return message.channel.send(`Lucky has 5 open slots. If you're still interested in joining please let Nymiir or one of our leaders know.`);
 
             case 1:
                 return message.channel.send(`Lucky has ${found} open slot. If you're still interested in joining please let Nymiir or one of our leaders know.`);
