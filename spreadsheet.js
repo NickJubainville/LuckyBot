@@ -5,11 +5,11 @@ const keys = require('./credentials.json');
 const sheetsid = '12H32mk28mfFVkxeWA4cipXqGHCx8uU_YTXHRRb6wCSM';
 
 const ranges = {
-  userData      : 'DATA!A1:S161',
-  statusData    : 'DATA!A5:A161',
-  dieSides      : 'DATA!A162',
-  eventCooldown : 'DATA!B162',
-  eventValues   : 'DATA!A162:B162',
+  userData      : 'DATA!A1:S165',
+  statusData    : 'DATA!A5:A165',
+  // dieSides      : 'DATA!A162',
+  // eventCooldown : 'DATA!B162',
+  // eventValues   : 'DATA!A162:B162',
 };
 
 // Instantiate connection with Google Sheets API

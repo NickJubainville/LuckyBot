@@ -54,6 +54,10 @@ module.exports = {
                 return message.channel.send(`Press F to pay respects`);
             }
 
+            else if (name === 'notonion') {
+                return message.channel.send(`I thought we'd established that onion isn't a member. At some point you've gotta give up on checking <:traitor:844401068872171550>`);
+            }
+
             if (name === 'yonic') {
                 name = 'yonıc';
             }
